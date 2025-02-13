@@ -1,12 +1,17 @@
+#ifndef SPRITE_H
+#define SPRITE_H
 
 class Sprite{
-    private:
+    protected:
         char symbole;
-        int lifetime;
+        int temps_vie;
+
     public:
-        Sprite(char type, int lifetime);
-        void afficher();
-        void update();
-        void mourir();
-        void getCoord();
+        Sprite();
+        Sprite(char, int);
+        virtual ~Sprite();
+
+        char getSymbole();
+        virtual void tourSuivant();
 };
+#endif // SPRITE_H

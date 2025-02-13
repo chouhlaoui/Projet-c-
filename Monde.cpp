@@ -3,11 +3,30 @@
 #include <iostream>
 using namespace std;
 
-Monde::Monde(int n, int m) : n(n), m(m) {}
+Monde::Monde(int n, int m) : n(n), m(m)
+{
+    nb_tour = 0;
+
+    tab = new Sprite**[n];
+    for (int i = 0; i < n; i++) {
+        tab[i] = new Sprite*[m];
+
+        for (int j = 0; j < m; j++) {
+            tab[i][j] = nullptr;
+        }
+    }
+}
 
 Monde::~Monde()
 {
+    for (int i = 0; i < n; i++) {
 
+        for (int j = 0; j < m; j++) {
+            delete tab[i][j];
+        }
+        delete[] tab[i];
+    }
+    delete[] tab;
 }
 
 void Monde::afficher()
@@ -15,13 +34,13 @@ void Monde::afficher()
     Monde::afficherNumeroColonne();
     Monde::afficherInterLigne();
 
-    for(int ligne=1; ligne<=n; ligne++)
+    for(int ligne=0; ligne<n; ligne++)
     {
         Monde::afficherLigne(ligne);
         Monde::afficherInterLigne();
     }
 
-    cout << endl;
+    cout << endl << "Tour : " << nb_tour << endl << endl;
 }
 
 void Monde::afficherNumeroColonne()
@@ -44,10 +63,18 @@ void Monde::afficherInterLigne()
 
 void Monde::afficherLigne(int ligne)
 {
-    cout << endl << Monde::ajouterRemplissage(3, to_string(ligne));
-    for(int colonne=1; colonne<=m; colonne++)
+    cout << endl << Monde::ajouterRemplissage(3, to_string(ligne+1));
+    for(int colonne=0; colonne<m; colonne++)
     {
-        cout << "|   |";
+        if(tab[ligne][colonne])
+        {
+            cout << "| " << tab[ligne][colonne]->getSymbole() << " |";
+        }
+        else
+        {
+            cout << "|   |";
+        }
+
     }
 }
 
@@ -62,4 +89,21 @@ string Monde::ajouterRemplissage(int taille_Remplissage, string chaine)
     chaine = string(remplissage_gauche, ' ') + chaine + string(remplissage_droite, ' ');
 
     return chaine;
+}
+
+
+void Monde::tourSuivant()
+{
+    nb_tour++;
+
+    for(int ligne=0; ligne<n; ligne++)
+    {
+        for(int colonne=0; colonne<n; colonne++)
+        {
+            if(tab[ligne][colonne])
+            {
+                tab[ligne][colonne]->tourSuivant();
+            }
+        }
+    }
 }
