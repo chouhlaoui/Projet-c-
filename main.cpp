@@ -10,36 +10,46 @@ using namespace std;
 #include <Mouton.h>
 #include <Loup.h>
 
-int getEntier(string message)
-{
-    int i;
+int demanderEntier(string message) {
+    int valeur;
 
-    cout << message;
-    while(!(cin >> i))
-    {
-        cout << "Erreur de saisie. Recommencez : ";
-        cin.clear();
-        cin.ignore( numeric_limits<streamsize>::max(), '\n' );
+    while (true) {
+        std::cout << message;
+        std::cin >> valeur;
+
+        if (std::cin.fail() || valeur <= 0) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Évite les caractères résiduels
+            std::cout << "Entree invalide. Veuillez entrer un nombre entier positif.\n";
+        } else {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return valeur;
+        }
     }
-
-    return i;
 }
+
+
 
 int main(int argc, char **argv)
 {
 	cout << "#####     Simulation d'ecosysteme     #####" << endl;
 
-    int n, m;
+    int nb_ligne, nb_colonne, nb_mouton, nb_loup;
     char continuer;
 
-    n = 10;//getEntier("Nombre de Ligne du monde : ");
-    m = 10;//getEntier("Nombre de Colonne du monde : ");
+    nb_ligne = 10;//demanderEntier("Nombre de Ligne du monde : ");
+    nb_colonne = 10;//demanderEntier("Nombre de Colonne du monde : ");
+    nb_mouton = 10;//demanderEntier("Nombre de Mouton : ");
+    nb_loup = 10;//demanderEntier("Nombre de Loup : ");
 
-    Monde monde(n, m);
-    monde.tab[0][0] = new Mouton();
-    monde.tab[0][1] = new Loup();
-    monde.tab[1][0] = new Herbe();
-    monde.tab[1][1] = new Sels_mineraux();
+    while(nb_mouton+nb_loup > nb_ligne*nb_colonne)
+    {
+        cout << "Il y a trop d'animaux pour ce monde !!!" << endl;
+        nb_mouton = demanderEntier("Nombre de Mouton : ");
+        nb_loup = demanderEntier("Nombre de Loup : ");
+    }
+
+    Monde monde(nb_ligne, nb_colonne, nb_mouton, nb_loup);
 
     do
     {
