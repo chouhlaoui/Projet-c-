@@ -1,14 +1,17 @@
+// pour compiler g++ -Wall -Wextra -g3 *.cpp -o output/main
+// pour lancer cd output puis ./main
+
 #include <iostream>
 #include <limits>
 using namespace std;
 
-#include <Monde.h>
-#include <Sprite.h>
-#include <Sels_mineraux.h>
-#include <Herbe.h>
-#include <Animal.h>
-#include <Mouton.h>
-#include <Loup.h>
+#include "Monde.h"
+#include "Sprite.h"
+#include "Sels_mineraux.h"
+#include "Herbe.h"
+#include "Animal.h"
+#include "Mouton.h"
+#include "Loup.h"
 
 int getEntier(string message)
 {
@@ -48,7 +51,7 @@ int main(int argc, char **argv)
 
         cout << "Voulez-vous continuer ? (o/n) : ";
         cin >> continuer;
-    } while (continuer == 'o');
+    } while (continuer == 'o' || continuer=='O');
 
 	return 0;
 }

@@ -1,7 +1,7 @@
 #ifndef LOUP_H
 #define LOUP_H
 
-#include <Animal.h>
+#include "Animal.h"
 
 class Loup : public Animal
 {

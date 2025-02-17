@@ -1,7 +1,7 @@
 #ifndef SELS_MINERAUX_H
 #define SELS_MINERAUX_H
 
-#include <Sprite.h>
+#include "Sprite.h"
 
 class Sels_mineraux : public Sprite
 {

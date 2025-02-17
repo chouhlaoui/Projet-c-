@@ -4,7 +4,7 @@
 #include <string>
 using namespace std;
 
-#include <Sprite.h>
+#include "Sprite.h"
 
 class Monde
 {

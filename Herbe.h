@@ -1,7 +1,7 @@
 #ifndef HERBE_H
 #define HERBE_H
 
-#include <Sprite.h>
+#include "Sprite.h"
 
 class Herbe : public Sprite
 {

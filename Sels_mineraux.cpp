@@ -1,4 +1,4 @@
-#include <Sels_mineraux.h>
+#include "Sels_mineraux.h"
 
 #include <iostream>
 using namespace std;

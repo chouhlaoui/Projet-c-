@@ -1,7 +1,7 @@
 #ifndef ANIMAL_H
 #define ANIMAL_H
 
-#include <Sprite.h>
+#include "Sprite.h"
 
 class Animal : public Sprite
 {

@@ -1,7 +1,7 @@
 #ifndef MOUTON_H
 #define MOUTON_H
 
-#include <Animal.h>
+#include "Animal.h"
 
 class Mouton : public Animal
 {
