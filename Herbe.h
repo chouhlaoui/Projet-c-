@@ -7,8 +7,6 @@ class Herbe : public Sprite
 {
     public:
         Herbe();
-
-        void tourSuivant() override;
 };
 
 #endif // HERBE_H
