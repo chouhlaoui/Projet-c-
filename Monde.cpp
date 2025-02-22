@@ -10,12 +10,17 @@ Monde::Monde(int n, int m, int mouton, int loup) : nb_ligne(n), nb_colonne(m), n
 {
     nb_tour = 0;
 
-    tab = new Sprite**[n];
-    for (int i = 0; i < n; i++) {
-        tab[i] = new Sprite*[m];
+    tab = new Sprite***[n];
+    for (int x = 0; x < n; x++) {
+        tab[x] = new Sprite**[m];
 
-        for (int j = 0; j < m; j++) {
-            tab[i][j] = new Herbe();
+        for (int y = 0; y < m; y++) {
+            tab[x][y] = new Sprite*[2];
+
+            tab[x][y][0] = new Herbe();// Herbe en bas/au sol
+            for (int z = 1; z < 2; z++) {
+                tab[x][y][z] = nullptr;
+            }
         }
     }
 
@@ -24,59 +29,59 @@ Monde::Monde(int n, int m, int mouton, int loup) : nb_ligne(n), nb_colonne(m), n
 
 void Monde::PlacerAnimaux()
 {
-    InitFonction();
+    Monde::InitTableauCoordonnees();
 
     int coord;
     for(int i=0; i<nb_mouton; i++)
     {
-        coord = Monde::fonctionModulaire(i);
-        Monde::ajouterSprite(new Mouton(), coord/nb_ligne, coord%nb_ligne);
+        coord = tableau_coordonees[i];
+        Monde::ajouterSprite(new Mouton(), coord/nb_colonne, coord%nb_colonne, 1);
     }
 
     for(int i=0; i<nb_loup; i++)
     {
-        coord = Monde::fonctionModulaire(nb_mouton + i);
-        Monde::ajouterSprite(new Loup(), coord/nb_ligne, coord%nb_ligne);
+        coord = tableau_coordonees[nb_mouton + i];
+        Monde::ajouterSprite(new Loup(), coord/nb_colonne, coord%nb_colonne, 1);
     }
 }
 
-void Monde::InitFonction()
+void Monde::InitTableauCoordonnees()
 {
-    int nb_premiers[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
+    int buffer, length = nb_ligne*nb_colonne, random_index, random_number = ((long long) 48271 * (nb_mouton + nb_loup)) % 2147483647;
 
-    N = nb_ligne*nb_colonne;
+    tableau_coordonees = new int[length];
+    for(int i=0; i<length; i++) tableau_coordonees[i] = i;
 
-    int index_nb;
-    for(int i=0; nb_premiers[i]<N/2; i++) index_nb++;
-
-    for (int i=index_nb; i>0; i--)
+    for(int i=0; i<length-2; i++)
     {
-        if(!(N % nb_premiers[i] == 0))
-        {
-            a = nb_premiers[i];
-            b = N/3;
-            return;
-        }
+        random_number = ((long long) 48271 * random_number) % 2147483647;
+        random_index = i+(random_number%(length-i));
+
+        buffer = tableau_coordonees[i];
+        tableau_coordonees[i] = tableau_coordonees[random_index];
+        tableau_coordonees[random_index] = buffer;
     }
-    cout << "Erreur : trop de case / pas assez de nombres premiers !!!!";
+
+
 }
 
-int Monde::fonctionModulaire(int coord)
-{
-    return (a*coord + b) % N;
-}
 
 Monde::~Monde()
 {
-    for (int i = 0; i < nb_ligne; i++) {
-
-        for (int j = 0; j < nb_colonne; j++) {
-            delete tab[i][j];
+    for (int x = 0; x < nb_ligne; x++) {
+        for (int y = 0; y < nb_colonne; y++) {
+            for (int z = 0; z < 2; z++) {
+                delete tab[x][y][z];  // Supprime chaque Sprite*
+            }
+            delete[] tab[x][y];  // Supprime chaque ligne Z
         }
-        delete[] tab[i];
+        delete[] tab[x];  // Supprime chaque colonne Y
     }
-    delete[] tab;
+    delete[] tab;  // Supprime le tableau principal
+
+    delete[] tableau_coordonees;
 }
+
 
 int Monde::nombreDeLignes()
 {
@@ -99,91 +104,95 @@ int Monde::nombreTour()
     return nb_tour;
 }
 
-void Monde::ajouterSprite(Sprite *sprite, int x, int y)
+void Monde::ajouterSprite(Sprite *sprite, int x, int y, int z)
 {
-    Monde::supprimmerSprite(x, y);
-    if(!tab[x][y])
-    {
-        tab[x][y] = sprite;
-    }
+    Monde::supprimmerSprite(x, y, z);
+    tab[x][y][z] = sprite;
 }
 void Monde::supprimmerSprite(Sprite *sprite)
 {
-    for (int i = 0; i < nb_ligne; i++)
+    for (int i=0; i<nb_ligne; i++)
     {
-        for (int j = 0; j < nb_colonne; j++)
+        for (int j=0; j<nb_colonne; j++)
         {
-
-            if(tab[i][j] == sprite)
+            for(int k=0; k<2; k++)
             {
-                delete tab[i][j];
-                tab[i][j] = nullptr;
+                if(tab[i][j][k] == sprite)
+                {
+                    delete tab[i][j][k];
+                    tab[i][j][k] = nullptr;
+                }
             }
-
         }
     }
 }
-void Monde::supprimmerSprite(int x, int y)
+void Monde::supprimmerSprite(int x, int y, int z)
 {
-    if(tab[x][y])
+    if(tab[x][y][z])
     {
-        delete tab[x][y];
-        tab[x][y] = nullptr;
+        delete tab[x][y][z];
+        tab[x][y][z] = nullptr;
     }
 }
 
 
 
-void Monde::afficher()
+ostream& operator<<(ostream& os, const Monde& monde)
 {
-    Monde::afficherNumeroColonne();
-    Monde::afficherInterLigne();
+    monde.afficherNumeroColonne(os);
+    monde.afficherInterLigne(os);
 
-    for(int ligne=0; ligne<nb_ligne; ligne++)
-    {
-        Monde::afficherLigne(ligne);
-        Monde::afficherInterLigne();
+    for (int ligne = 0; ligne < monde.nb_ligne; ligne++) {
+        monde.afficherLigne(os, ligne);
+        monde.afficherInterLigne(os);
     }
 
-    cout << endl << "Tour : " << nb_tour << endl << endl;
+    os << endl << "Tour : " << monde.nb_tour << endl << endl;
+    return os;
 }
 
-void Monde::afficherNumeroColonne()
+void Monde::afficherNumeroColonne(ostream& os) const
 {
-    cout << endl << "   ";
-    for(int colonne=1; colonne<=nb_colonne; colonne++)
-    {
-        cout << Monde::ajouterRemplissage(5, to_string(colonne));
-    }
-}
-
-void Monde::afficherInterLigne()
-{
-    cout << endl << "   ";
-    for(int colonne=1; colonne<=nb_colonne; colonne++)
-    {
-        cout << "+---+";
+    os << endl << "   ";
+    for (int colonne = 1; colonne <= nb_colonne; colonne++) {
+        os << ajouterRemplissage(5, to_string(colonne));
     }
 }
 
-void Monde::afficherLigne(int ligne)
+
+void Monde::afficherInterLigne(ostream& os) const
 {
-    cout << endl << Monde::ajouterRemplissage(3, to_string(ligne+1));
-    for(int colonne=0; colonne<nb_colonne; colonne++)
+    os << endl << "   ";
+    for (int colonne = 1; colonne <= nb_colonne; colonne++) {
+        os << "+---+";
+    }
+}
+
+
+void Monde::afficherLigne(ostream& os, int ligne) const
+{
+    os << endl << ajouterRemplissage(3, to_string(ligne + 1));
+    for (int colonne = 0; colonne < nb_colonne; colonne++)
     {
-        if(tab[ligne][colonne])
-        {
-            cout << "| " << tab[ligne][colonne]->getSymbole() << " |";
+        Sprite* sprite = nullptr;
+
+        for (int hauteur = 1; hauteur >= 0; hauteur--) {
+            if (tab[ligne][colonne][hauteur]) {
+                sprite = tab[ligne][colonne][hauteur];
+                break;
+            }
         }
-        else
-        {
-            cout << "|   |";
-        }
 
+        if (sprite) {
+            os << "| " << *sprite << " |";
+        } else {
+            os << "|   |";
+        }
     }
 }
 
-string Monde::ajouterRemplissage(int taille_Remplissage, string chaine)
+
+string Monde::ajouterRemplissage(int taille_Remplissage, string chaine) const
 {
     int longueur = chaine.length();
 
@@ -206,9 +215,12 @@ void Monde::tourSuivant()
     {
         for(int colonne=0; colonne<nb_colonne; colonne++)
         {
-            if(tab[ligne][colonne])
+            for(int hauteur=0; hauteur<2; hauteur++)
             {
-                tab[ligne][colonne]->tourSuivant();
+                if(tab[ligne][colonne][hauteur])
+                {
+                    tab[ligne][colonne][hauteur]->tourSuivant();
+                }
             }
         }
     }

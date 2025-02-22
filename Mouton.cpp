@@ -1,3 +1,4 @@
+#include "Sprite.h"
 #include "Mouton.h"
 
 #include <iostream>
@@ -7,6 +8,6 @@ Mouton::Mouton() : Animal('M', 50) {}
 
 void Mouton::tourSuivant()
 {
-    cout << "Tour Mouton" << endl;
+
 }
 

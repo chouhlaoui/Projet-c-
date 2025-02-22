@@ -6,12 +6,6 @@
 using namespace std;
 
 #include "Monde.h"
-#include "Sprite.h"
-#include "Sels_mineraux.h"
-#include "Herbe.h"
-#include "Animal.h"
-#include "Mouton.h"
-#include "Loup.h"
 
 int demanderEntier(string message) {
     int valeur;
@@ -22,10 +16,10 @@ int demanderEntier(string message) {
 
         if (std::cin.fail() || valeur <= 0) {
             std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Évite les caractères résiduels
+            std::cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Évite les caractères résiduels
             std::cout << "Entree invalide. Veuillez entrer un nombre entier positif.\n";
         } else {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return valeur;
         }
     }
@@ -40,10 +34,10 @@ int main(int argc, char **argv)
     int nb_ligne, nb_colonne, nb_mouton, nb_loup;
     char continuer;
 
-    nb_ligne = 10;//demanderEntier("Nombre de Ligne du monde : ");
-    nb_colonne = 10;//demanderEntier("Nombre de Colonne du monde : ");
-    nb_mouton = 10;//demanderEntier("Nombre de Mouton : ");
-    nb_loup = 10;//demanderEntier("Nombre de Loup : ");
+    nb_ligne = 18;//demanderEntier("Nombre de Ligne du monde : ");
+    nb_colonne = 28;//demanderEntier("Nombre de Colonne du monde : ");
+    nb_mouton = 20;//demanderEntier("Nombre de Mouton : ");
+    nb_loup = 20;//demanderEntier("Nombre de Loup : ");
 
     while(nb_mouton+nb_loup > nb_ligne*nb_colonne)
     {
@@ -56,7 +50,7 @@ int main(int argc, char **argv)
 
     do
     {
-        monde.afficher();
+        cout << monde;
         monde.tourSuivant();
 
         cout << "Voulez-vous continuer ? (o/n) : ";

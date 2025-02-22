@@ -1,6 +1,7 @@
 #ifndef MONDE_H
 #define MONDE_H
 
+#include <iostream>
 #include <string>
 using namespace std;
 
@@ -10,9 +11,9 @@ class Monde
 {
     private:
         int nb_ligne, nb_colonne,nb_mouton, nb_loup, nb_tour;
-        Sprite*** tab;
+        Sprite**** tab;
 
-        int a, b, N;
+        int* tableau_coordonees;
 
     public:
         Monde(int , int, int , int);
@@ -24,22 +25,21 @@ class Monde
         int nombreLoup();
         int nombreTour();
 
-        void ajouterSprite(Sprite*, int, int);
+        void ajouterSprite(Sprite*, int, int, int);
         void supprimmerSprite(Sprite*);
-        void supprimmerSprite(int , int);
+        void supprimmerSprite(int , int, int);
 
-        void afficher();
+        friend ostream& operator<<(ostream&, const Monde&);// Affichage
         void tourSuivant();
 
     private:
         void PlacerAnimaux();
-        void InitFonction();
-        int fonctionModulaire(int coord);
+        void InitTableauCoordonnees();
 
-        void afficherNumeroColonne();
-        void afficherInterLigne();
-        void afficherLigne(int);
-        string ajouterRemplissage(int , string);
+        void afficherNumeroColonne(ostream&) const;
+        void afficherInterLigne(ostream&) const;
+        void afficherLigne(ostream&, int) const;
+        string ajouterRemplissage(int , string) const;
 
 };
 
