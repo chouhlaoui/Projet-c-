@@ -6,7 +6,11 @@
 class Loup : public Animal
 {
     public:
+        static int nbLoup;
+        static int getNbLoup();
+        
         Loup();
+        ~Loup();
 
         void tourSuivant() override;
 };

@@ -103,6 +103,10 @@ int Monde::nombreTour()
 {
     return nb_tour;
 }
+Sprite**** Monde::tableau()
+{
+    return tab;
+}
 
 void Monde::ajouterSprite(Sprite *sprite, int x, int y, int z)
 {

@@ -24,6 +24,7 @@ class Monde
         int nombreMouton();
         int nombreLoup();
         int nombreTour();
+        Sprite**** tableau();
 
         void ajouterSprite(Sprite*, int, int, int);
         void supprimmerSprite(Sprite*);

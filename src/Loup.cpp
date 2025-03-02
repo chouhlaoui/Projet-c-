@@ -1,10 +1,20 @@
 #include "Loup.h"
 
-#include <iostream>
-using namespace std;
+int Loup::nbLoup = 0;
 
+Loup::Loup() : Animal('L', 60)
+{
+    nbLoup++;
+}
 
-Loup::Loup() : Animal('L', 60) {}
+Loup::~Loup()
+{
+    nbLoup--;
+}
+
+int Loup::getNbLoup() {
+    return nbLoup;
+}
 
 void Loup::tourSuivant()
 {

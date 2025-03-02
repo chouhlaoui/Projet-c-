@@ -6,7 +6,11 @@
 class Mouton : public Animal
 {
     public:
+        static int nbMouton;
+        static int getNbMouton();
+        
         Mouton();
+        ~Mouton();
 
         void tourSuivant() override;
 };

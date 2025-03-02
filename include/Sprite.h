@@ -12,6 +12,8 @@ class Sprite{
     public:
         Sprite(char, int);
         virtual ~Sprite();
+        
+        char getSymbole();
 
         friend ostream& operator<<(ostream& os, const Sprite& sprite);
         virtual void tourSuivant();
