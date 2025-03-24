@@ -3,11 +3,11 @@
 #include <tuple>
 using namespace std;
 
-#include <Monde.h>
-#include <Mouton.h>
-#include <Loup.h>
-#include <Herbe.h>
-#include <Sels_Mineraux.h>
+#include "Monde.h"
+#include "Mouton.h"
+#include "Loup.h"
+#include "Herbe.h"
+#include "Sels_Mineraux.h"
 
 #include "Constantes.h"
 using namespace Constantes;
@@ -246,9 +246,15 @@ void Monde::ajouterChose(Chose* chose)
 
 void Monde::supprimmerChose(Chose* chose)
 {
-    int x, y, z; tie(x, y, z) = chose->obtenirCoordonnees();
-    delete tableau3D[x][y][z];
-    tableau3D[x][y][z] = nullptr;
+    if (!chose) return;
+
+    int x, y, z;
+    tie(x, y, z) = chose->obtenirCoordonnees();
+
+    if (tableau3D[x][y][z] == chose) {
+        delete tableau3D[x][y][z];
+        tableau3D[x][y][z] = nullptr;
+    }
 }
 
 void Monde::deplacerChose(Chose* chose, Coordonnees coordonnees)

@@ -1,3 +1,6 @@
+#include <iostream>
+using namespace std;
+
 #include "Monde.h"
 #include "Loup.h"
 
@@ -24,7 +27,8 @@ void Loup::manger()
     if(mouton)
     {
         Chose::ajouterLog(coordonnees, "Un loup a mange un mouton");
-        //monde->supprimmerChose(mouton);
+        monde->supprimmerChose(mouton);
+        mouton = nullptr;
         faim = 0;
     }
 }

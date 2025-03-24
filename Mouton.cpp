@@ -20,13 +20,16 @@ Mouton::~Mouton()
 
 void Mouton::manger()
 {
-    int x, y, z; tie(x, y, z) = coordonnees;
+    int x, y, z;
+    tie(x, y, z) = coordonnees;
     Coordonnees coordonneesSol = make_tuple(x, y, 0);
 
-    if(monde->obtenirChose(coordonneesSol)->estdeType(SYMBOLE_HERBE))
+    Chose* chose = monde->obtenirChose(coordonneesSol);
+
+    if (chose && chose->estdeType(SYMBOLE_HERBE))
     {
         Chose::ajouterLog(coordonneesSol, "Un mouton a mange de l'herbe");
-        //monde->supprimmerChose(monde->obtenirChose(coordonneesSol));
+        monde->supprimmerChose(chose);
         faim = 0;
     }
 }

@@ -9,8 +9,8 @@
 #include <chrono>
 using namespace std;
 
-#include <Monde.h>
-#include <Chose.h>
+#include "Monde.h"
+#include "Chose.h"
 #include "Mouton.h"
 
 #include "Constantes.h"
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     int nb_ligne, nb_colonne, nb_mouton, nb_loup;
 
     nb_ligne = 10;//demanderEntier("Nombre de Ligne du monde : ");
-    nb_colonne = 15;//demanderEntier("Nombre de Colonne du monde : ");
+    nb_colonne = 10;//demanderEntier("Nombre de Colonne du monde : ");
     nb_mouton = 60;//demanderEntier("Nombre de Mouton : ");
     nb_loup = 30;//demanderEntier("Nombre de Loup : ");
 
