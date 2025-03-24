@@ -3,28 +3,36 @@
 
 #include <iostream>
 #include <limits>
+#include <vector>
+#include <tuple>
+#include <thread>
+#include <chrono>
 using namespace std;
 
-#include "Monde.h"
+#include <Monde.h>
+#include <Chose.h>
+#include "Mouton.h"
+
+#include "Constantes.h"
+using namespace Constantes;
 
 int demanderEntier(string message) {
     int valeur;
 
     while (true) {
-        std::cout << message;
-        std::cin >> valeur;
+        cout << message;
+        cin >> valeur;
 
-        if (std::cin.fail() || valeur <= 0) {
-            std::cin.clear();
-            std::cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Évite les caractères résiduels
-            std::cout << "Entree invalide. Veuillez entrer un nombre entier positif.\n";
+        if (cin.fail() || valeur <= 0) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Évite les caractères résiduels
+            cout << "Entree invalide. Veuillez entrer un nombre entier positif.\n";
         } else {
-            std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return valeur;
         }
     }
 }
-
 
 
 int main(int argc, char **argv)
@@ -32,12 +40,11 @@ int main(int argc, char **argv)
 	cout << "#####     Simulation d'ecosysteme     #####" << endl;
 
     int nb_ligne, nb_colonne, nb_mouton, nb_loup;
-    char continuer;
 
-    nb_ligne = 18;//demanderEntier("Nombre de Ligne du monde : ");
-    nb_colonne = 28;//demanderEntier("Nombre de Colonne du monde : ");
-    nb_mouton = 20;//demanderEntier("Nombre de Mouton : ");
-    nb_loup = 20;//demanderEntier("Nombre de Loup : ");
+    nb_ligne = 10;//demanderEntier("Nombre de Ligne du monde : ");
+    nb_colonne = 15;//demanderEntier("Nombre de Colonne du monde : ");
+    nb_mouton = 60;//demanderEntier("Nombre de Mouton : ");
+    nb_loup = 30;//demanderEntier("Nombre de Loup : ");
 
     while(nb_mouton+nb_loup > nb_ligne*nb_colonne)
     {
@@ -46,16 +53,18 @@ int main(int argc, char **argv)
         nb_loup = demanderEntier("Nombre de Loup : ");
     }
 
-    Monde monde(nb_ligne, nb_colonne, nb_mouton, nb_loup);
+    Monde *monde = new Monde(nb_ligne, nb_colonne, nb_mouton, nb_loup);
+    Chose::setMonde(monde);
 
-    do
-    {
-        cout << monde;
-        monde.tourSuivant();
+    for (int i = 0; i < 100; i++){
+        monde->tourSuivant();
+        cout << *monde;
+        if (monde->simulationFini()) break;
+        this_thread::sleep_for(chrono::milliseconds(0));
+    }
+    cout << "Simulation finie apres " << monde->obtenirNbTour() << " tours";
 
-        cout << "Voulez-vous continuer ? (o/n) : ";
-        cin >> continuer;
-    } while (continuer == 'o' || continuer=='O');
 
 	return 0;
 }
+
