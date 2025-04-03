@@ -3,45 +3,62 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
-#include "Sprite.h"
+#include "Chose.h"
+#include "Mouton.h"
+#include "Loup.h"
+
+#include "Constantes.h"
+using namespace Constantes;
 
 class Monde
 {
     private:
-        int nb_ligne, nb_colonne,nb_mouton, nb_loup, nb_tour;
-        Sprite**** tab;
-
-        int* tableau_coordonees;
+        int nb_ligne, nb_colonne, nb_mouton_initial, nb_loup_initial, nb_tour;
+        Chose**** tableau3D;
 
     public:
-        Monde(int , int, int , int);
-        ~Monde();
+        Monde(int, int, int, int);
+        virtual ~Monde();
 
-        int nombreDeLignes();
-        int nombreDeColonnes();
-        int nombreMouton();
-        int nombreLoup();
-        int nombreTour();
-        Sprite**** tableau();
-
-        void ajouterSprite(Sprite*, int, int, int);
-        void supprimmerSprite(Sprite*);
-        void supprimmerSprite(int , int, int);
+        int obtenirNbLigne() {return nb_ligne;}
+        int obtenirNbColonne() {return nb_colonne;}
+        Chose**** obtenirTableau3D() {return tableau3D;}
+        int obtenirNbTour() {return nb_tour;}
 
         friend ostream& operator<<(ostream&, const Monde&);// Affichage
+
+        int finirSimulation();
         void tourSuivant();
+        void reinitialiserAction();
 
     private:
-        void PlacerAnimaux();
-        void InitTableauCoordonnees();
+        void placerAnimaux();
+        vector<int> initialiserTableauCoordonnees();
+        long long genererNbAleatoire(long long);
 
         void afficherNumeroColonne(ostream&) const;
         void afficherInterLigne(ostream&) const;
         void afficherLigne(ostream&, int) const;
+        void afficherLogs(ostream&) const;
         string ajouterRemplissage(int , string) const;
 
+    public:
+        bool simulationFini() {return !(Loup::obtenirNbLoup() > 0 && Mouton::obtenirNbMouton() > 0);}
+
+        Chose* obtenirChose(Coordonnees);
+        void ajouterChose(Chose*);
+        void supprimmerChose(Chose*);
+        void deplacerChose(Chose*, Coordonnees);
+
+        vector<Coordonnees> caseAccessibles(Coordonnees coordonnees, short=1);
+        vector<Coordonnees> casesAdjacentes(Coordonnees coordonnees);
+        bool CaseValide(Coordonnees);
+        bool CaseVide(Coordonnees);
+
+        int compterTypeAdjacents(char, Coordonnees, short=1, short=1);
 };
 
 #endif // MONDE_H

@@ -1,18 +1,22 @@
 #ifndef MOUTON_H
 #define MOUTON_H
 
-#include "Animal.h"
+#include <Animal.h>
 
 class Mouton : public Animal
 {
-    public:
+    private:
         static int nbMouton;
-        static int getNbMouton();
-        
-        Mouton();
-        ~Mouton();
 
-        void tourSuivant() override;
+    public:
+        static const int obtenirNbMouton() {return nbMouton;};
+
+        Mouton(Coordonnees, short, bool, short, short, short);
+        virtual ~Mouton();
+
+        Animal* clone(Coordonnees coord) const override {return new Mouton(coord, age % 2, 0, 0, 0, temps_reproduction);}
+
+        void manger() override;
 };
 
 #endif // MOUTON_H

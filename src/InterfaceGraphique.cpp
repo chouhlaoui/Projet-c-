@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <chrono>
 #include<windows.h>
 using namespace std;
 
@@ -20,17 +21,19 @@ using namespace std;
 float zoom = 1.0f;
 float offsetX = 0.0f, offsetY = 0.0f;
 const float CELL_SIZE = 0.1f;
-int FPS = 10;
+int FPS = 1;
 bool pause = false;
+auto last_time = chrono::system_clock::now(), current_time = chrono::system_clock::now();
 
 Monde* monde = nullptr;
 
 // Textures
-const char map[] = {'M', 'L', 'H', 'S'};
+const char map[] = {'M', 'L', '_', 'S'};
 vector<GLuint> textures;
 
 void Initialise(int argc, char** argv, int nb_ligne, int nb_colonne, int nb_mouton, int nb_loup) {
     monde = new Monde(nb_ligne, nb_colonne, nb_mouton, nb_loup);
+    Chose::setMonde(monde);
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
@@ -102,6 +105,7 @@ GLuint LoadTexture(const char* filename) {
 }
 
 void LancerSimulation(){
+    last_time = chrono::system_clock::now();
     glutMainLoop();
 }
 
@@ -116,11 +120,17 @@ void Display() {
 void Render() {
     SetupProjection();
     SetupModelView();
-
-    if (!pause) monde->tourSuivant();
+    
+    current_time = chrono::system_clock::now();
+    double elapsed_time = chrono::duration<double, std::milli>(current_time - last_time).count();
+    if (!pause && !monde->simulationFini() && elapsed_time > 1000.0/FPS)
+    {
+        monde->tourSuivant();
+        last_time = current_time;
+    }
+    
     RenderGrid();
     RenderInfoBox();
-    Sleep(1000.0/FPS);
 }
 
 void SetupProjection() {
@@ -146,20 +156,20 @@ void RenderGrid() {
 
     glEnable(GL_TEXTURE_2D);
     
-    Sprite**** tab = monde->tableau();
-    Sprite* sprite = nullptr;
+    Chose**** tab = monde->obtenirTableau3D();
+    Chose* chose = nullptr;
     int textureIndex, i;
     
-    for (int x = 0; x < monde->nombreDeLignes(); x++) {
-        for (int y = 0; y < monde->nombreDeColonnes(); y++) {
-            sprite = nullptr;
+    for (int x = 0; x < monde->obtenirNbLigne(); x++) {
+        for (int y = 0; y < monde->obtenirNbColonne(); y++) {
+            chose = nullptr;
 
             for (int z = 0; z < 2; z++) {
                 if (tab[x][y][z] != nullptr) {
-                    sprite = tab[x][y][z];
+                    chose = tab[x][y][z];
                     
                     i = 0;
-                    while(map[i] != sprite->getSymbole()) i++;
+                    while(map[i] != chose->obtenirSymbole()) i++;
                     textureIndex = i;
                     
                     glBindTexture(GL_TEXTURE_2D, textures[textureIndex]); 
@@ -204,10 +214,10 @@ void RenderInfoBox() {
     float startY = 0.07f;
     float columnSpacing = 0.25f;
 
-    RenderText(startX, startY, "Tour : " + to_string(monde->nombreTour()));
-    RenderText(startX + columnSpacing, startY, "Moutons : " + to_string(Mouton::getNbMouton()));
-    RenderText(startX + 2 * columnSpacing, startY, "Loups : " + to_string(Loup::getNbLoup()));
-    RenderText(startX + 3 * columnSpacing, startY, "Herbe : " + to_string(Herbe::getNbHerbe()));
+    RenderText(startX, startY, "Tour : " + to_string(monde->obtenirNbTour()));
+    RenderText(startX + columnSpacing, startY, "Moutons : " + to_string(Mouton::obtenirNbMouton()));
+    RenderText(startX + 2 * columnSpacing, startY, "Loups : " + to_string(Loup::obtenirNbLoup()));
+    RenderText(startX + 3 * columnSpacing, startY, "Herbe : " + to_string(Herbe::obtenirNbHerbe()));
 
     RenderText(startX, startY - 0.05f, "Zoom : " + to_string(zoom));
     RenderText(startX + columnSpacing, startY - 0.05f, "Offset X : " + to_string(offsetX));
@@ -288,7 +298,7 @@ void mouseWheel(int wheel, int direction, int x, int y) {
     if (direction > 0)
     {
         // Zoom avant
-        if (zoom > 0.1f) zoom -= 0.1f;
+        if (zoom > 0.2f) zoom -= 0.1f;
     }
     else
     {

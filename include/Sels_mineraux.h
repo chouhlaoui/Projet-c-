@@ -1,12 +1,18 @@
 #ifndef SELS_MINERAUX_H
 #define SELS_MINERAUX_H
 
-#include "Sprite.h"
+#include <Chose.h>
 
-class Sels_mineraux : public Sprite
+class Sels_Mineraux : public Chose
 {
+    private:
+        static int nbSels;
+
     public:
-        Sels_mineraux();
+        static const int obtenirNbSels() {return nbSels;};
+
+        Sels_Mineraux(Coordonnees);
+        virtual ~Sels_Mineraux();
 
         void tourSuivant() override;
 };

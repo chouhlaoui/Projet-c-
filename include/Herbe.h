@@ -1,16 +1,20 @@
 #ifndef HERBE_H
 #define HERBE_H
 
-#include "Sprite.h"
+#include "Chose.h"
 
-class Herbe : public Sprite
+class Herbe : public Chose
 {
-    public:
+    private:
         static int nbHerbe;
-        static int getNbHerbe();
-        
-        Herbe();
+
+    public:
+        static const int obtenirNbHerbe() {return nbHerbe;};
+
+        Herbe(Coordonnees, short);
         ~Herbe();
+
+        void tourSuivant() override;
 };
 
 #endif // HERBE_H

@@ -1,13 +1,26 @@
-#include "Sels_mineraux.h"
+#include "Monde.h"
+#include "Chose.h"
+#include "Herbe.h"
+#include "Sels_Mineraux.h"
 
-#include <iostream>
-using namespace std;
+int Sels_Mineraux::nbSels = 0;
 
-
-Sels_mineraux::Sels_mineraux() : Sprite('S', -1) {}
-
-void Sels_mineraux::tourSuivant()
+Sels_Mineraux::Sels_Mineraux(Coordonnees coordonnees) : Chose(coordonnees, SYMBOLE_SELS, 0)
 {
-    cout << "Tour Sels mineraux" << endl;
+    nbSels++;
 }
 
+Sels_Mineraux::~Sels_Mineraux()
+{
+    nbSels--;
+}
+
+void Sels_Mineraux::tourSuivant()
+{
+    if (age++ >= DUREE_VIE_SELS)
+    {
+        Chose::ajouterLog(coordonnees, "De l'herbe a pousse");
+        monde->supprimmerChose(this);
+        monde->ajouterChose(new Herbe(coordonnees, 0));
+    }
+}

@@ -1,142 +1,110 @@
-#include <Monde.h>
-#include <Herbe.h>
-#include <Mouton.h>
-#include <Loup.h>
-
+#include <algorithm>
 #include <iostream>
+#include <vector>
+#include <tuple>
 using namespace std;
 
-Monde::Monde(int n, int m, int mouton, int loup) : nb_ligne(n), nb_colonne(m), nb_mouton(mouton), nb_loup(loup)
+#include "Monde.h"
+#include "Mouton.h"
+#include "Loup.h"
+#include "Herbe.h"
+#include "Sels_Mineraux.h"
+
+#include "Constantes.h"
+using namespace Constantes;
+
+Monde::Monde(int n, int m, int mouton, int loup) : nb_ligne(n), nb_colonne(m), nb_mouton_initial(mouton), nb_loup_initial(loup)
 {
     nb_tour = 0;
 
-    tab = new Sprite***[n];
+    tableau3D = new Chose***[n];
     for (int x = 0; x < n; x++) {
-        tab[x] = new Sprite**[m];
+        tableau3D[x] = new Chose**[m];
 
         for (int y = 0; y < m; y++) {
-            tab[x][y] = new Sprite*[2];
+            tableau3D[x][y] = new Chose*[HAUTEUR];
 
-            tab[x][y][0] = new Herbe();// Herbe en bas/au sol
-            for (int z = 1; z < 2; z++) {
-                tab[x][y][z] = nullptr;
+            tableau3D[x][y][0] = new Herbe(make_tuple(x, y, 0), genererNbAleatoire(x+y) % max(1, RYTHME_REPRODUCTION_HERBE/2));// Herbe en bas/au sol
+            for (int z = 1; z < HAUTEUR; z++) {
+                tableau3D[x][y][z] = nullptr;
             }
         }
     }
 
-    PlacerAnimaux();
+    placerAnimaux();
 }
 
-void Monde::PlacerAnimaux()
+void Monde::placerAnimaux()
 {
-    Monde::InitTableauCoordonnees();
+    vector<int> tableau_coordonnees = initialiserTableauCoordonnees();
 
-    int coord;
-    for(int i=0; i<nb_mouton; i++)
+    int index;
+    Mouton *mouton;
+    for(int i=0; i<nb_mouton_initial; i++)
     {
-        coord = tableau_coordonees[i];
-        Monde::ajouterSprite(new Mouton(), coord/nb_colonne, coord%nb_colonne, 1);
+        index = tableau_coordonnees[i];
+        mouton = new Mouton({index / nb_colonne, index % nb_colonne, 1},
+                            genererNbAleatoire(i) % max(1, DUREE_VIE_MOUTON / 2),
+                            genererNbAleatoire(i) % 2,
+                            genererNbAleatoire(i) % max(1, TOURS_SANS_MANGER_MOUTON / 2),
+                            genererNbAleatoire(i) % max(1, RYTHME_REPRODUCTION_MOUTON / 2),
+                            TEMPS_REPRODUCTION_MOUTON+1);
+        ajouterChose(mouton);
     }
 
-    for(int i=0; i<nb_loup; i++)
+    Loup *loup;
+    for(int i=0; i<nb_loup_initial; i++)
     {
-        coord = tableau_coordonees[nb_mouton + i];
-        Monde::ajouterSprite(new Loup(), coord/nb_colonne, coord%nb_colonne, 1);
+        index = tableau_coordonnees[nb_mouton_initial + i];
+        loup = new Loup({index/nb_colonne, index%nb_colonne, 1},
+                        genererNbAleatoire(i) % max(1, DUREE_VIE_LOUP/2),
+                        genererNbAleatoire(i) % 2,
+                        genererNbAleatoire(i) % max(1, TOURS_SANS_MANGER_LOUP/2),
+                        genererNbAleatoire(i) % max(1, RYTHME_REPRODUCTION_LOUP/2),
+                        TEMPS_REPRODUCTION_LOUP+1);
+        ajouterChose(loup);
     }
 }
 
-void Monde::InitTableauCoordonnees()
+vector<int> Monde::initialiserTableauCoordonnees() {
+    int index;
+    int length = nb_ligne * nb_colonne;
+    int nb_aleatoire = genererNbAleatoire(nb_mouton_initial + nb_loup_initial);
+
+    vector<int> tableau_coordonnees(length);
+    for (int i = 0; i < length; i++) {
+        tableau_coordonnees[i] = i;
+    }
+
+    // Mélange de Fisher-Yates
+    for (int i = 0; i < length - 2; i++) {
+        nb_aleatoire = genererNbAleatoire(nb_aleatoire);
+        index = i + (nb_aleatoire % (length - i));
+
+        swap(tableau_coordonnees[i], tableau_coordonnees[index]);
+    }
+
+    return tableau_coordonnees;
+}
+
+
+long long Monde::genererNbAleatoire(long long nb)
 {
-    int buffer, length = nb_ligne*nb_colonne, random_index, random_number = ((long long) 48271 * (nb_mouton + nb_loup)) % 2147483647;
-
-    tableau_coordonees = new int[length];
-    for(int i=0; i<length; i++) tableau_coordonees[i] = i;
-
-    for(int i=0; i<length-2; i++)
-    {
-        random_number = ((long long) 48271 * random_number) % 2147483647;
-        random_index = i+(random_number%(length-i));
-
-        buffer = tableau_coordonees[i];
-        tableau_coordonees[i] = tableau_coordonees[random_index];
-        tableau_coordonees[random_index] = buffer;
-    }
-
-
+    return ((long long) a * nb) % N;
 }
-
 
 Monde::~Monde()
 {
     for (int x = 0; x < nb_ligne; x++) {
         for (int y = 0; y < nb_colonne; y++) {
-            for (int z = 0; z < 2; z++) {
-                delete tab[x][y][z];  // Supprime chaque Sprite*
+            for (int z = 0; z < HAUTEUR; z++) {
+                delete tableau3D[x][y][z];  // Supprime chaque Chose*
             }
-            delete[] tab[x][y];  // Supprime chaque ligne Z
+            delete[] tableau3D[x][y];  // Supprime chaque ligne
         }
-        delete[] tab[x];  // Supprime chaque colonne Y
+        delete[] tableau3D[x];  // Supprime chaque colonne
     }
-    delete[] tab;  // Supprime le tableau principal
-
-    delete[] tableau_coordonees;
-}
-
-
-int Monde::nombreDeLignes()
-{
-    return nb_ligne;
-}
-int Monde::nombreDeColonnes()
-{
-    return nb_colonne;
-}
-int Monde::nombreMouton()
-{
-    return nb_mouton;
-}
-int Monde::nombreLoup()
-{
-    return nb_loup;
-}
-int Monde::nombreTour()
-{
-    return nb_tour;
-}
-Sprite**** Monde::tableau()
-{
-    return tab;
-}
-
-void Monde::ajouterSprite(Sprite *sprite, int x, int y, int z)
-{
-    Monde::supprimmerSprite(x, y, z);
-    tab[x][y][z] = sprite;
-}
-void Monde::supprimmerSprite(Sprite *sprite)
-{
-    for (int i=0; i<nb_ligne; i++)
-    {
-        for (int j=0; j<nb_colonne; j++)
-        {
-            for(int k=0; k<2; k++)
-            {
-                if(tab[i][j][k] == sprite)
-                {
-                    delete tab[i][j][k];
-                    tab[i][j][k] = nullptr;
-                }
-            }
-        }
-    }
-}
-void Monde::supprimmerSprite(int x, int y, int z)
-{
-    if(tab[x][y][z])
-    {
-        delete tab[x][y][z];
-        tab[x][y][z] = nullptr;
-    }
+    delete[] tableau3D;  // Supprime le tableau principal
 }
 
 
@@ -151,7 +119,12 @@ ostream& operator<<(ostream& os, const Monde& monde)
         monde.afficherInterLigne(os);
     }
 
-    os << endl << "Tour : " << monde.nb_tour << endl << endl;
+    os << endl << "Tour : " << monde.nb_tour;
+    os << " | " << "Mouton : " << Mouton::obtenirNbMouton() << " | " << "Loup : " << Loup::obtenirNbLoup();
+    os << " | " << "Herbe : " << Herbe::obtenirNbHerbe() << " | " << "Sels : " << Sels_Mineraux::obtenirNbSels() << endl << endl;
+
+    monde.afficherLogs(os);
+
     return os;
 }
 
@@ -163,7 +136,6 @@ void Monde::afficherNumeroColonne(ostream& os) const
     }
 }
 
-
 void Monde::afficherInterLigne(ostream& os) const
 {
     os << endl << "   ";
@@ -172,23 +144,22 @@ void Monde::afficherInterLigne(ostream& os) const
     }
 }
 
-
 void Monde::afficherLigne(ostream& os, int ligne) const
 {
     os << endl << ajouterRemplissage(3, to_string(ligne + 1));
     for (int colonne = 0; colonne < nb_colonne; colonne++)
     {
-        Sprite* sprite = nullptr;
+        Chose* chose = nullptr;
 
-        for (int hauteur = 1; hauteur >= 0; hauteur--) {
-            if (tab[ligne][colonne][hauteur]) {
-                sprite = tab[ligne][colonne][hauteur];
+        for (int hauteur = HAUTEUR-1; hauteur >= 0; hauteur--) {
+            if (tableau3D[ligne][colonne][hauteur]) {
+                chose = tableau3D[ligne][colonne][hauteur];
                 break;
             }
         }
 
-        if (sprite) {
-            os << "| " << *sprite << " |";
+        if (chose) {
+            os << "| " << *chose << " |";
         } else {
             os << "|   |";
         }
@@ -209,23 +180,169 @@ string Monde::ajouterRemplissage(int taille_Remplissage, string chaine) const
     return chaine;
 }
 
+void Monde::afficherLogs(ostream& os) const
+{
+    for(string log : Chose::logs)
+    {
+        os << log << endl;
+    }
+}
 
+
+int Monde::finirSimulation()
+{
+    for (int i = 0; i < 1000; i++){
+        tourSuivant();
+        if (simulationFini()) return i;
+    }
+    return 1000;
+}
 
 void Monde::tourSuivant()
 {
+    Chose::logs.clear();
     nb_tour++;
+    reinitialiserAction();
 
     for(int ligne=0; ligne<nb_ligne; ligne++)
     {
         for(int colonne=0; colonne<nb_colonne; colonne++)
         {
-            for(int hauteur=0; hauteur<2; hauteur++)
+            for(int hauteur=0; hauteur<HAUTEUR; hauteur++)
             {
-                if(tab[ligne][colonne][hauteur])
+                if(tableau3D[ligne][colonne][hauteur])
                 {
-                    tab[ligne][colonne][hauteur]->tourSuivant();
+                    if (!tableau3D[ligne][colonne][hauteur]->aJouerCeTour())
+                    {
+                        tableau3D[ligne][colonne][hauteur]->tourSuivant();
+                    }
                 }
             }
         }
     }
 }
+
+void Monde::reinitialiserAction()
+{
+    for(int ligne=0; ligne<nb_ligne; ligne++)
+    {
+        for(int colonne=0; colonne<nb_colonne; colonne++)
+        {
+            for(int hauteur=0; hauteur<HAUTEUR; hauteur++)
+            {
+                if(tableau3D[ligne][colonne][hauteur])
+                {
+                    tableau3D[ligne][colonne][hauteur]->reinitialiserAction();
+                }
+            }
+        }
+    }
+}
+
+
+
+Chose* Monde::obtenirChose(Coordonnees coordonnees)
+{
+    int x, y, z; tie(x, y, z) = coordonnees;
+    return tableau3D[x][y][z];
+}
+
+void Monde::ajouterChose(Chose* chose)
+{
+    int x, y, z; tie(x, y, z) = chose->obtenirCoordonnees();
+    tableau3D[x][y][z] = chose;
+}
+
+void Monde::supprimmerChose(Chose* chose)
+{
+    if (!chose) return;
+
+    int x, y, z;
+    tie(x, y, z) = chose->obtenirCoordonnees();
+
+    if (tableau3D[x][y][z] == chose) {
+        delete tableau3D[x][y][z];
+        tableau3D[x][y][z] = nullptr;
+    }
+}
+
+void Monde::deplacerChose(Chose* chose, Coordonnees coordonnees)
+{
+    int x, y, z; tie(x, y, z) = chose->obtenirCoordonnees();
+    tableau3D[x][y][z] = nullptr;
+
+    tie(x, y, z) = coordonnees;
+    tableau3D[x][y][z] = chose;
+    chose->changeCoordonnees(coordonnees);
+
+}
+
+vector<Coordonnees> Monde::caseAccessibles(Coordonnees coordonnees, short rayon)
+{
+    vector<Coordonnees> casesLibres;
+    int x, y, z; tie(x, y, z) = coordonnees;
+    casesLibres.push_back(coordonnees);
+
+    for (int dx = -rayon; dx <= rayon; dx++) {
+        for (int dy = -rayon; dy <= rayon; dy++) {
+            Coordonnees nouvelleCase = {x + dx, y + dy, z};
+            if (CaseValide(nouvelleCase) && CaseVide(nouvelleCase))
+            {
+                casesLibres.push_back(nouvelleCase);
+            }
+        }
+    }
+    sort(casesLibres.begin(), casesLibres.end());
+    return casesLibres;
+}
+
+vector<Coordonnees> Monde::casesAdjacentes(Coordonnees coordonnees)
+{
+    vector<Coordonnees> caseAdjacentes;
+    int x, y, z; tie(x, y, z) = coordonnees;
+
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            Coordonnees nouvelleCase = {x + dx, y + dy, z};
+            if (CaseValide(nouvelleCase))
+            {
+                caseAdjacentes.push_back(nouvelleCase);
+            }
+        }
+    }
+    sort(caseAdjacentes.begin(), caseAdjacentes.end());
+    return caseAdjacentes;
+}
+
+bool Monde::CaseValide(Coordonnees coordonnees)
+{
+    int x, y, z; tie(x, y, z) = coordonnees;
+    return x>=0 && y>=0 && z>=0 && x<nb_ligne && y<nb_colonne && z<HAUTEUR;
+}
+
+bool Monde::CaseVide(Coordonnees coordonnees)
+{
+    int x, y, z; tie(x, y, z) = coordonnees;
+    return !tableau3D[x][y][z];
+}
+
+int Monde::compterTypeAdjacents(char type, Coordonnees coordonnees, short rayon, short hauteur)
+{
+    int cpt = 0, x, y, z; tie(x, y, z) = coordonnees;
+    for(int i=x-rayon; i<=x+rayon; i++)
+    {
+        for(int j=y-rayon; j<=y+rayon; j++)
+        {
+            for(int k=z-hauteur; k<=z+hauteur; k++)
+            {
+                Coordonnees coord = {i, j, k};
+                if(CaseValide(coord) && obtenirChose(coord))
+                {
+                    if(obtenirChose(coord)->estdeType(type)) cpt++;
+                }
+            }
+        }
+    }
+    return cpt;
+}
+
