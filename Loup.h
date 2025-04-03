@@ -12,7 +12,7 @@ class Loup : public Animal
     public:
         static const int obtenirNbLoup() {return nbLoup;};
 
-        Loup(Coordonnees, bool, short, short, short, short);
+        Loup(Coordonnees, short, bool, short, short, short);
         virtual ~Loup();
 
         Animal* clone(Coordonnees coord) const override { return new Loup(coord, age % 2, 0, 0, 0, temps_reproduction);}

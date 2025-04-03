@@ -23,10 +23,14 @@ class Monde
         Monde(int, int, int, int);
         virtual ~Monde();
 
+        int obtenirNbLigne() {return nb_ligne;}
+        int obtenirNbColonne() {return nb_colonne;}
+        Chose**** obtenirTableau3D() {return tableau3D;}
         int obtenirNbTour() {return nb_tour;}
 
         friend ostream& operator<<(ostream&, const Monde&);// Affichage
 
+        int finirSimulation();
         void tourSuivant();
         void reinitialiserAction();
 

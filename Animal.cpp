@@ -8,13 +8,13 @@ using namespace std;
 #include "Animal.h"
 #include "Sels_mineraux.h"
 
-Animal::Animal(Coordonnees coordonnees, char symbole, bool sexe,
-               short age, short faim, short tour_sans_reproduction, short tour_reproduction,
+Animal::Animal(Coordonnees coordonnees, char symbole, short age,
+               bool sexe, short faim, short tour_sans_reproduction, short tour_reproduction,
                const short duree_vie, const short tours_sans_manger, const short age_min_reproduction,
                const short rythme_reproduction, const short temps_reproduction, const short* coefficients) :
 
-               Chose(coordonnees, symbole),
-               sexe(sexe), age(age), faim(faim), tour_sans_reproduction(tour_sans_reproduction), tour_reproduction(tour_reproduction),
+               Chose(coordonnees, symbole, age),
+               sexe(sexe), faim(faim), tour_sans_reproduction(tour_sans_reproduction), tour_reproduction(tour_reproduction),
                duree_vie(duree_vie), tours_sans_manger(tours_sans_manger), age_min_reproduction(age_min_reproduction),
                rythme_reproduction(rythme_reproduction), temps_reproduction(temps_reproduction), coefficients(coefficients) {}
 
@@ -28,12 +28,11 @@ void Animal::tourSuivant()
     {
         if (aFiniReproduction() && sexe)
         {
-            //creerBebe();
+            creerBebe();
         }
         else if (Coordonnees caseChoisie = choisirCase(); caseChoisie != coordonnees)
         {
             monde->deplacerChose(this, caseChoisie);
-            action = true;
         }
         else if(aFaim())
         {
@@ -41,12 +40,11 @@ void Animal::tourSuivant()
         }
         else if(peutSeReproduire())
         {
-            //seReproduire();
+            seReproduire();
         }
     }
-
-    if (verifierFaim()) return;
-    if (verifierAge()) return;
+    action = true;
+    if (verifierFaim() || verifierAge()) mourir();
 }
 
 void Animal::incrementerCompteurs()
@@ -92,9 +90,10 @@ short Animal::evaluerCase(Coordonnees coordonnees)
 
     for(const char& type : LISTE_SYMBOLES)
     {
-        score += monde->compterTypeAdjacents(type, coordonnees, 0) * coefficients[index];
-        score += monde->compterTypeAdjacents(type, coordonnees, 1) * coefficients[index + 1];
-        index += 2;
+        if(coefficients[index] != 0 && monde->compterTypeAdjacents(type, coordonnees, 0) > 0) score += coefficients[index];
+        if(coefficients[index+1] != 0 && monde->compterTypeAdjacents(type, coordonnees, 1) > 0) score += coefficients[index+1];
+        if(coefficients[index+2] != 0) score += monde->compterTypeAdjacents(type, coordonnees, 1) * coefficients[index + 2];
+        index += 3;
     }
     return score;
 }
@@ -108,7 +107,6 @@ Coordonnees Animal::choisirMeilleureCase(vector<Coordonnees> cases, vector<short
     {
         if (scores[i] == meilleurScore)
         {
-            int x, y, z; tie(x, y, z) = cases[i];
             meilleuresCases.push_back(cases[i]);
         }
     }
@@ -127,13 +125,11 @@ void Animal::manger() {}
 
 bool Animal::peutSeReproduire()
 {
-    return age >= age_min_reproduction && tour_reproduction >= rythme_reproduction;
+    return age >= age_min_reproduction && tour_reproduction >= rythme_reproduction && faim < tours_sans_manger - temps_reproduction;
 }
 
 void Animal::seReproduire()
 {
-    if (!peutSeReproduire()) return;
-
     Animal* partenaire = trouverPartenaire();
     if (partenaire)
     {
@@ -164,9 +160,8 @@ Animal* Animal::trouverPartenaire()
 }
 
 Coordonnees Animal::trouverCaseLibreAutour(Animal* femelle) {
-    vector<Coordonnees> casesLibres;
+    vector<Coordonnees> casesLibres, casesAutour = monde->caseAccessibles(femelle->coordonnees);
 
-    vector<Coordonnees> casesAutour = monde->caseAccessibles(femelle->coordonnees);
     for (const Coordonnees& caseLibre : casesAutour)
         {
         if (monde->obtenirChose(caseLibre) == nullptr)
@@ -175,10 +170,7 @@ Coordonnees Animal::trouverCaseLibreAutour(Animal* femelle) {
         }
     }
 
-    if (!casesLibres.empty()) {
-        return casesLibres[monde->obtenirNbTour() % casesLibres.size()];
-    }
-
+    if (!casesLibres.empty()) return casesLibres[monde->obtenirNbTour() % casesLibres.size()];
     return make_tuple(-1, -1, -1); // Aucun espace libre
 }
 
@@ -187,14 +179,16 @@ void Animal::creerBebe()
     tour_sans_reproduction = 0;
 
     Coordonnees caseNaissance = trouverCaseLibreAutour(this);
-    if (caseNaissance == make_tuple(-1, -1, -1))
+    if (caseNaissance != make_tuple(-1, -1, -1))
+    {
+        Chose::ajouterLog(caseNaissance, "un bebe est ne");
+        monde->ajouterChose(this->clone(caseNaissance));
+    }
+    else
     {
         Chose::ajouterLog(coordonnees, "pas de place");
-        return;
     }
 
-    Chose::ajouterLog(caseNaissance, "un bebe est ne");
-    monde->ajouterChose(this->clone(caseNaissance));
 }
 
 bool Animal::verifierAge()
@@ -202,7 +196,6 @@ bool Animal::verifierAge()
     if (age > duree_vie)
     {
         Chose::ajouterLog(coordonnees, "Un animal est mort de viellesse");
-        mourir();
         return true;
     }
     return false;
@@ -213,7 +206,6 @@ bool Animal::verifierFaim()
     if (faim > tours_sans_manger)
     {
         Chose::ajouterLog(coordonnees, "Un animal est mort de faim");
-        mourir();
         return true;
     }
     return false;

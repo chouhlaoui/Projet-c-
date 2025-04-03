@@ -24,19 +24,29 @@ namespace Constantes
     constexpr short DUREE_VIE_MOUTON = 50;
     constexpr short TOURS_SANS_MANGER_MOUTON = 5;
     constexpr short AGE_MIN_REPRODUCTION_MOUTON = 5;
-    constexpr short RYTHME_REPRODUCTION_MOUTON = 2;
-    constexpr short TEMPS_REPRODUCTION_MOUTON = 5;
-    constexpr short COEFFICIENTS_MOUTON[] = {20, 2, 0, 0, 0, 1, 0, -50};
+    constexpr short RYTHME_REPRODUCTION_MOUTON = 5;
+    constexpr short TEMPS_REPRODUCTION_MOUTON = 1;
+                                           //dessus, à coté, à coté(proportionnel)
+    constexpr short COEFFICIENTS_MOUTON[] = {30, 2, 0,
+                                             0, 1, 0,
+                                             0, 20, -5,
+                                             0, -100, -10};
 
     // Paramètres des loups
     constexpr short DUREE_VIE_LOUP = 60;
     constexpr short TOURS_SANS_MANGER_LOUP = 10;
     constexpr short AGE_MIN_REPRODUCTION_LOUP = 5;
-    constexpr short RYTHME_REPRODUCTION_LOUP = 2;
-    constexpr short TEMPS_REPRODUCTION_LOUP = 5;
-    constexpr short COEFFICIENTS_LOUP[] = {0, 0, 0, 0, 0, 20, 0, 1};
+    constexpr short RYTHME_REPRODUCTION_LOUP = 5;
+    constexpr short TEMPS_REPRODUCTION_LOUP = 1;
+    constexpr short COEFFICIENTS_LOUP[] = {0, 0, 0,
+                                           0, 0, 0,
+                                           0, 30, 0,
+                                           0, 20, -5};
 
-    // Paramètres des sels minéraux
+    // Paramètre de l'herbe
+    constexpr short RYTHME_REPRODUCTION_HERBE = 10; //-1 -> pas de pousse // 0 -> pousse à chaque tour
+
+    // Paramètre des sels minéraux
     constexpr short DUREE_VIE_SELS = 1;
 }
 

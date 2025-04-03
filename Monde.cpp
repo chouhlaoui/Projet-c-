@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <tuple>
@@ -23,7 +24,7 @@ Monde::Monde(int n, int m, int mouton, int loup) : nb_ligne(n), nb_colonne(m), n
         for (int y = 0; y < m; y++) {
             tableau3D[x][y] = new Chose*[HAUTEUR];
 
-            tableau3D[x][y][0] = new Herbe(make_tuple(x, y, 0));// Herbe en bas/au sol
+            tableau3D[x][y][0] = new Herbe(make_tuple(x, y, 0), genererNbAleatoire(x+y) % max(1, RYTHME_REPRODUCTION_HERBE/2));// Herbe en bas/au sol
             for (int z = 1; z < HAUTEUR; z++) {
                 tableau3D[x][y][z] = nullptr;
             }
@@ -188,6 +189,14 @@ void Monde::afficherLogs(ostream& os) const
 }
 
 
+int Monde::finirSimulation()
+{
+    for (int i = 0; i < 1000; i++){
+        tourSuivant();
+        if (simulationFini()) return i;
+    }
+    return 1000;
+}
 
 void Monde::tourSuivant()
 {
@@ -283,7 +292,7 @@ vector<Coordonnees> Monde::caseAccessibles(Coordonnees coordonnees, short rayon)
             }
         }
     }
-
+    sort(casesLibres.begin(), casesLibres.end());
     return casesLibres;
 }
 
@@ -301,7 +310,7 @@ vector<Coordonnees> Monde::casesAdjacentes(Coordonnees coordonnees)
             }
         }
     }
-
+    sort(caseAdjacentes.begin(), caseAdjacentes.end());
     return caseAdjacentes;
 }
 
@@ -336,3 +345,4 @@ int Monde::compterTypeAdjacents(char type, Coordonnees coordonnees, short rayon,
     }
     return cpt;
 }
+

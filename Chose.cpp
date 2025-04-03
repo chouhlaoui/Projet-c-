@@ -22,7 +22,7 @@ void Chose::ajouterLog(Coordonnees coordonnees, const string& message)
     Chose::logs.push_back(log);
 }
 
-Chose::Chose(Coordonnees coordonnees, char symbole) : coordonnees(coordonnees), symbole(symbole) {}
+Chose::Chose(Coordonnees coordonnees, char symbole, short age) : coordonnees(coordonnees), symbole(symbole) , age(age), action(false){}
 
 Chose::~Chose() {}
 

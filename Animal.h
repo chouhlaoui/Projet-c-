@@ -7,7 +7,6 @@ class Animal : public Chose
 {
     protected:
         bool sexe;
-        short age;
         short faim;
         short tour_sans_reproduction;
         short tour_reproduction;
@@ -19,7 +18,7 @@ class Animal : public Chose
         const short* coefficients;
 
     public:
-        Animal(Coordonnees, char, bool, short, short, short, short, const short, const short, const short, const short, const short, const short*);
+        Animal(Coordonnees, char, short, bool, short, short, short, const short, const short, const short, const short, const short, const short*);
         virtual ~Animal();
 
         void tourSuivant() override;

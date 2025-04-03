@@ -9,8 +9,8 @@ using namespace Constantes;
 
 int Loup::nbLoup = 0;
 
-Loup::Loup(Coordonnees coordonnees, bool sexe, short age, short faim, short tour_sans_reproduction, short tour_reproduction) :
-    Animal(coordonnees, SYMBOLE_LOUP, sexe, age, faim, tour_sans_reproduction, tour_reproduction,
+Loup::Loup(Coordonnees coordonnees, short age, bool sexe, short faim, short tour_sans_reproduction, short tour_reproduction) :
+    Animal(coordonnees, SYMBOLE_LOUP, age, sexe, faim, tour_sans_reproduction, tour_reproduction,
            DUREE_VIE_LOUP, TOURS_SANS_MANGER_LOUP, AGE_MIN_REPRODUCTION_LOUP, RYTHME_REPRODUCTION_LOUP, TEMPS_REPRODUCTION_LOUP, COEFFICIENTS_LOUP)
 {
     nbLoup++;
@@ -28,7 +28,6 @@ void Loup::manger()
     {
         Chose::ajouterLog(coordonnees, "Un loup a mange un mouton");
         monde->supprimmerChose(mouton);
-        mouton = nullptr;
         faim = 0;
     }
 }

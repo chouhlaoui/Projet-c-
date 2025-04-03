@@ -11,10 +11,10 @@ class Mouton : public Animal
     public:
         static const int obtenirNbMouton() {return nbMouton;};
 
-        Mouton(Coordonnees, bool, short, short, short, short);
+        Mouton(Coordonnees, short, bool, short, short, short);
         virtual ~Mouton();
 
-        Animal* clone(Coordonnees coord) const override { return new Mouton(coord, age % 2, 0, 0, 0, temps_reproduction);}
+        Animal* clone(Coordonnees coord) const override {return new Mouton(coord, age % 2, 0, 0, 0, temps_reproduction);}
 
         void manger() override;
 };

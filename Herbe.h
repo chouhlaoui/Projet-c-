@@ -11,8 +11,10 @@ class Herbe : public Chose
     public:
         static const int obtenirNbHerbe() {return nbHerbe;};
 
-        Herbe(Coordonnees);
+        Herbe(Coordonnees, short);
         ~Herbe();
+
+        void tourSuivant() override;
 };
 
 #endif // HERBE_H
